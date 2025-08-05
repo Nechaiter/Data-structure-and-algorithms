@@ -4,6 +4,15 @@
 
 // Ideas y refencias de los metodos sacados aqui >> https://github.com/williamfiset/Algorithms/blob/master/src/main/java/com/williamfiset/algorithms/datastructures/dynamicarray/IntArray.java
 
+
+// El codigo probablemente tiene muchos leaks de memoria ya que aun me ando familiarizando con c++
+
+
+
+#ifndef DINAMIC_ARRAY_H
+#define DINAMIC_ARRAY_H
+
+
 #include <stdexcept>
 #include <iostream>
 using namespace std;
@@ -12,11 +21,9 @@ using namespace std;
 class DA{
     
     // puntero del array para asignar memoria dinamicamente
-    int *array;
-
+    int *array = nullptr;
     // Cantidad de elementos del array que el usuario tiene
     int size = {0};
-
     // Espacio que el array esta usando real (cantidad de objetos dentro de el array)
     int space = {0};
 
@@ -29,6 +36,7 @@ class DA{
             if (space<=0){
                 space = sizeof(ArrayToCopy)/sizeof(int);
             }
+            delete[] array;
             array = new int[space]();
             for (int i= 0; i<size; i++){
                 array[i]=ArrayToCopy[i];
@@ -38,6 +46,23 @@ class DA{
 
     // Metodos para size, add, drop
     public:
+        ~DA() {
+            if (array != nullptr) {
+                delete[] array;
+            }
+        }
+
+
+        // sobre escribe operadores aritmeticos u otros para cambiarles la logica
+        int& operator[](int index) {
+            if (index<size){
+                return array[index];
+            }else{
+                throw invalid_argument("The index should be inside bounds");
+            }
+        }
+
+
 
         int getSize(){
             return size;
@@ -74,6 +99,7 @@ class DA{
 
 
         // Insert at...
+        // Si no hay espacio, duplicamos el espacio haciendo un nuevo array
         void add(int newElement){
             if (size+1>=space){
 
@@ -91,35 +117,70 @@ class DA{
             array[size++]=newElement;
         }
 
-        // COMO REDUCIR EL el tiempo de O(n) a O(1) para el ultimo elemento?
+        
         void removeAt(int index){
-            
-
-            // En vez de crear uno nuevo basado en lo anterior, movamos los elemetos y dejamos el espacio al final
-
+            // En vez de crear uno nuevo basado en lo anterior, movamos los elementos y dejamos el espacio al final
             if (index < 0 || index >= size) {
                 throw out_of_range("Index out of bounds");
             }
             for (int i = index; i < size - 1; i++){
                 array[i] = array[i + 1];
             }
-            
             size--; 
+        }
+        bool remove(int element){           
+            for (int i = 0; i < size; i++) {
+                if (array[i] == element) {
+                    removeAt(i);
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        // Invertimos los elementos dividiendo a la mitad y se cambian de posicion con su inverso, 0 = size-1, 1=size-2, etc
+        void reverse(){
+            for (int i = 0; i < size / 2; i++) {
+                int tmp = array[i];
+                array[i] = array[size - i - 1];
+                array[size - i - 1] = tmp;
+            }
+        }
+
+        int binarySeach(int element){
+            int inicio = {0};
+            int final = {size - 1};
+            while (inicio <= final) {
+                int mitad = (final + inicio) / 2;
+                // Busqueda por derecha
+                if (array[mitad] > element) {
+                    final = mitad - 1;
+                    continue;
+                }
+                // busqueda por la izquierda
+                else if (array[mitad] < element) {
+                    inicio = mitad + 1;
+                    continue;
+                }
+                return mitad;
+            }
+            return -1;
+        }
+
+        // Hacer un Heapsort...
+        void sort(){
+            for (int i=0; i<size-1;i++){
+                for (int j=0; j<size-i-1; j++){
+                    if (array[j]>array[j+1]){
+                        int temp=array[j+1];
+                        array[j+1]=array[j];
+                        array[j]=temp;
+                    }
+                }
+            }    
         }
 
 
-
-    // 
-    
-
 };
 
-
-int main(){
-    
-
-
-	return 0;
-}
-
+#endif
