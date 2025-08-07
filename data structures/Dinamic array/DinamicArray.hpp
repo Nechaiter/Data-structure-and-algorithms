@@ -17,11 +17,13 @@
 #include <iostream>
 using namespace std;
 
+// Se hace uso de templates para no tener restriccion de data types
+template<typename T>
 // ArrayDinamico para numeros enteros solamente 
 class DA{
     
     // puntero del array para asignar memoria dinamicamente
-    int *array = nullptr;
+    T *array = nullptr;
     // Cantidad de elementos del array que el usuario tiene
     int size = {0};
     // Espacio que el array esta usando real (cantidad de objetos dentro de el array)
@@ -31,13 +33,13 @@ class DA{
 
     private:
 
-        void copyArray(int * ArrayToCopy,int space = 0){
+        void copyArray(T * ArrayToCopy,int space = 0){
             
             if (space<=0){
                 space = sizeof(ArrayToCopy)/sizeof(int);
             }
             delete[] array;
-            array = new int[space]();
+            array = new T[space]();
             for (int i= 0; i<size; i++){
                 array[i]=ArrayToCopy[i];
             }
@@ -75,12 +77,12 @@ class DA{
             }
 
             else{
-                array = new int[space]();
+                array = new T[space]();
                 this->space = size = space;
             }
 
         }
-        void InitArray(int StaticArray[]){
+        void InitArray(T StaticArray[]){
             if (StaticArray == nullptr){
                 throw invalid_argument("The array should contain something");
             }
@@ -100,7 +102,7 @@ class DA{
 
         // Insert at...
         // Si no hay espacio, duplicamos el espacio haciendo un nuevo array
-        void add(int newElement){
+        void add(T newElement){
             if (size+1>=space){
 
                 if (space == 0){
@@ -128,7 +130,7 @@ class DA{
             }
             size--; 
         }
-        bool remove(int element){           
+        bool remove(T element){           
             for (int i = 0; i < size; i++) {
                 if (array[i] == element) {
                     removeAt(i);
@@ -141,13 +143,13 @@ class DA{
         // Invertimos los elementos dividiendo a la mitad y se cambian de posicion con su inverso, 0 = size-1, 1=size-2, etc
         void reverse(){
             for (int i = 0; i < size / 2; i++) {
-                int tmp = array[i];
+                T tmp = array[i];
                 array[i] = array[size - i - 1];
                 array[size - i - 1] = tmp;
             }
         }
 
-        int binarySeach(int element){
+        int binarySeach(T element){
             int inicio = {0};
             int final = {size - 1};
             while (inicio <= final) {
@@ -172,7 +174,7 @@ class DA{
             for (int i=0; i<size-1;i++){
                 for (int j=0; j<size-i-1; j++){
                     if (array[j]>array[j+1]){
-                        int temp=array[j+1];
+                        T temp=array[j+1];
                         array[j+1]=array[j];
                         array[j]=temp;
                     }
