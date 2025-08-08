@@ -30,7 +30,23 @@ class DLL{
         };
         int size = {0};
         node* head = nullptr;
-        node* tail = nullptr;
+        node* tail = nullptr;   
+
+
+        T remove(node* node){
+            if (node->prev == nullptr) return removeFirst();
+            if (node->next == nullptr) return removeLast();
+
+            node->prev->next=node->next;
+            node->next->prev=node->prev;
+
+            T temp = node->data;
+            delete node;
+            --size;
+            return temp;
+        }
+
+
 
     public:
         // Remueve los nodos desde la cabeza hasta el final en O(n)
@@ -85,29 +101,172 @@ class DLL{
                 throw out_of_range("Index out of bounds");
             }
             if (index == 0) {
-                addFirst(data);
+                addFirst(new_data);
                 return;
             }
 
             if (index == size) {
-                addLast(data);
+                addLast(new_data);
+                return;
+            };
+
+            bool best_side = false;
+            if (index > size/2){
+                best_side = true;
+            };
+            int start, end, step;
+            node* current;
+
+            if(best_side){
+                start = size - 1;
+                end = index;
+                current = tail;
+                for (int i=start;i>=end;i--){
+                    current=tail->prev;
+                };
+            }else{
+                start = 0;
+                end = index;
+                current = head;
+                for (int i=start;i<=end;i++){
+                    current=head->next;
+                };
+            };
+            
+            node* new_node = new node(new_data,current->prev,current);
+            current->prev->next=new_node;
+            current->prev=new_node;
+            size++;
+        };
+
+        // Mostrar la lista de manera visual
+        void display() {
+            if (IsEmpty()) {
+                cout << "Lista vacía" << endl;
                 return;
             }
-
-            int best_side;
-            if (index > size/2){
-
-            }
-
             
-
-
-
-
+            node* current = head;
+            cout << "[";
+            while (current != nullptr) {
+                cout << current->data;
+                if (current->next != nullptr) {
+                    cout << " <-> ";
+                }
+                current = current->next;
+            }
+            cout << "]" << endl;
+        }
+        T peekFist(){
+            if(IsEmpty()){
+                throw logic_error("Empty List");
+            }
+            return head->data;
+        }
+        T peekLast(){
+            if(IsEmpty()){
+                throw logic_error("Empty List");
+            }
+            return tail->data;
         }
 
+        T removeFirst(){
+            if(IsEmpty()){
+                throw logic_error("Empty List");
+                head = nullptr;
+                tail = nullptr;
+            };
+            T data = head->data;
+            if (size<2){
+                delete head;    
+                head = nullptr;
+                --size;
+            }
+            else{
+                head = head->next;
+                delete head->prev;
+                head->prev = nullptr;
+                --size;
+            }
+            if(IsEmpty()){
+                tail=nullptr;
+            }
+            return data;
+        }
 
-    
+        T removeLast(){
+            if(IsEmpty()){
+                throw logic_error("Empty List");
+                head = nullptr;
+                tail = nullptr;
+            };
+            T data = tail->data;
+            if (size<2){
+                delete tail;
+                --size;
+            }
+            else{
+                node* prev=tail->prev;
+                delete tail;
+                tail=prev;
+                tail->next=nullptr;
+                prev = nullptr;
+                --size;
+            }
+            if(IsEmpty()){
+                tail=nullptr;
+                head=nullptr;
+            }
+            return data;
+        }
+
+        T removeAt(int index){
+            if (index < 0 || index >= size) {
+                throw out_of_range("Index out of bounds");
+            }
+
+            int i;
+            node* current;
+
+            if (index< size/2){
+                for(i=0, current=head; i<index; i++){
+                    current=current->next;
+                }
+            }else{
+                for(i= size-1, current = tail;i>index; i--){
+                    current=current->prev;
+                }
+            }
+
+            return remove(current);
+        }
+
+        bool remove(T value){
+            node* current = head;
+
+            for (current;current!=nullptr;current=current->next){
+                if(current->data==value){
+                    remove(current);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        int indexOf(T value){
+            int index = 0;
+            node* current=head;
+
+
+            for (current;current!=nullptr;current=current->next, index++){
+                if(current->data==value){
+                    return index;
+                }
+            }
+            return -1;
+
+        }
 };
 
 #endif
+
